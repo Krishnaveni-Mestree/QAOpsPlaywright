@@ -2,7 +2,7 @@
 
 ## Goal
 Make the GitHub Actions pipeline run our tests on **Azure cloud browsers** (not on the GitHub machine) and publish the report to Azure.
-Lecture 131 explained the sample YAML. This lecture changes it. The finished file is [playwright.yml](../../.github/workflows/playwright.yml).
+Lecture 131 explained the sample YAML. This lecture changes it. The finished file is [playwright.yml](../.github/workflows/playwright.yml).
 
 ## Big picture (what talks to what)
 ```
@@ -66,7 +66,7 @@ Repo -> **Settings** -> **Secrets and variables** -> **Actions**.
 In YAML: `${{ secrets.NAME }}` reads a secret; `${{ vars.NAME }}` reads a variable.
 
 ## Step D: the workflow changes
-Final steps in [playwright.yml](../../.github/workflows/playwright.yml) (every line is commented in the file):
+Final steps in [playwright.yml](../.github/workflows/playwright.yml) (every line is commented in the file):
 ```yaml
 - uses: actions/checkout@v4
 - uses: actions/setup-node@v4
