@@ -102,3 +102,4 @@ As an architect you would own: the cloud infrastructure, the pipeline, and these
 - [ ] On a PR with failing tests: Merge button disabled
 - [ ] On a PR with passing tests: Merge enabled
 - [ ] Rotated the client secret that was exposed earlier (see 132)
+
