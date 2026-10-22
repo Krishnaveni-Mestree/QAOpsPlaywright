@@ -54,7 +54,7 @@ This is the real-life flow: **change code locally -> push -> pipeline tells you 
 ## Where do the browsers/parallelism come from?
 - `--workers=4` in the workflow command: up to **4 tests at once**. Azure starts 4 cloud browsers; when one test finishes, the next starts.
 - Which browser runs is decided in the **project config**, not the workflow. `playwright.service.config.js` imports `playwright.config.js`, so it inherits its `projects`.
-  In our [playwright.config.js](../../playwright.config.js) there is a single project: **`chromium`** (`devices['Desktop Chrome']`). So tests run in Chrome.
+  In our [playwright.config.js](../playwright.config.js) there is a single project: **`chromium`** (`devices['Desktop Chrome']`). So tests run in Chrome.
 - To run more browsers: add projects (for example Firefox/WebKit) in `playwright.config.js`. The service config picks them up automatically, and the pipeline then runs every browser in the cloud. No YAML change is needed.
 - `headless: false` in our config is fine here: the browsers run remotely in Azure, not on the GitHub runner, so no display is needed on Ubuntu.
 
