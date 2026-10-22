@@ -1,24 +1,62 @@
+# Name shown in the "Actions" tab on GitHub
 name: Playwright Tests
+
+# WHEN to run: on a push, or a pull request, targeting main/master.
+# Pushes to your own feature branches do not trigger it.
 on:
   push:
     branches: [ main, master ]
   pull_request:
     branches: [ main, master ]
+
 jobs:
   test:
+    # Stop the job if it runs longer than 60 minutes
     timeout-minutes: 60
+    # WHERE to run: a fresh Ubuntu machine provided by GitHub.
+    # It only checks out code and talks to Azure; the browsers run in Azure.
     runs-on: ubuntu-latest
     steps:
+    # Step 1 (action): download this repo's code onto the Ubuntu machine
     - uses: actions/checkout@v4
+
+    # Step 2 (action): install Node.js (latest LTS) on the machine
     - uses: actions/setup-node@v4
       with:
         node-version: lts/*
+
+    # Step 3 (shell): install packages from package-lock.json, including
+    # @azure/playwright and @azure/identity that the service config needs
     - name: Install dependencies
       run: npm ci
-    - name: Install Playwright Browsers
-      run: npx playwright install --with-deps
+
+    # Step removed: not needed because the browsers live in Azure, not on this machine.
+    # Skipping it saves several minutes per run.
+    # - name: Install Playwright Browsers
+    #   run: npx playwright install --with-deps
+
+    # Step 4 (action): sign in to Azure as the "github-playwright" service principal.
+    # AZURE_CREDENTIALS is a repository SECRET (Settings > Secrets and variables > Actions > Secrets)
+    # holding the JSON printed by "az ad sp create-for-rbac ... --json-auth".
+    # After this step the machine has an Azure CLI session, which
+    # DefaultAzureCredential in playwright.service.config.js picks up automatically.
+    # Note: azure/login v3 is the current version; v2 is in maintenance mode.
+    - name: Azure Login
+      uses: azure/login@v2
+      with:
+        creds: ${{ secrets.AZURE_CREDENTIALS }}
+
+    # Step 5 (shell): run the tests on Azure cloud browsers instead of this machine.
+    # PLAYWRIGHT_SERVICE_URL is a repository VARIABLE (not a secret), the regional
+    # browser endpoint of the Playwright workspace. The service config reads it.
+    # --config      : use the cloud config, not playwright.config.js
+    # --workers=4   : 4 tests in parallel; the free account limits this number
     - name: Run Playwright tests
-      run: npx playwright test
+      env:
+        PLAYWRIGHT_SERVICE_URL: ${{vars.PLAYWRIGHT_SERVICE_URL}}
+      run: npx playwright test --config=playwright.service.config.js --workers=4                                           
+    # Step 6 (action): upload the local HTML report as a downloadable "artifact" (kept 30 days).
+    # "!cancelled()" = upload even if tests failed, but not if the run was cancelled.
     - uses: actions/upload-artifact@v4
       if: ${{ !cancelled() }}
       with:
