@@ -3,11 +3,11 @@ name: Playwright Tests
 
 # WHEN to run: on a push, or a pull request, targeting main/master.
 # Pushes to your own feature branches do not trigger it.
-on:
-  push:
-    branches: [ main, master ]
-  pull_request:
-    branches: [ main, master ]
+# on:
+#   push:
+#     branches: [ main, master ]
+#   pull_request:
+#     branches: [ main, master ]
 
 jobs:
   test:
